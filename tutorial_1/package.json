@@ -1,0 +1,25 @@
+{
+  "name": "activity__loot-boxes__variables-intro",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.html",
+  "scripts": {
+    "start": "parcel index.html --open",
+    "build": "parcel build index.html"
+  },
+  "dependencies": {
+    "@celo/contractkit": "^2.0.0",
+    "assets": "^3.0.1",
+    "phaser": "3.17.0",
+    "plumo-verifier": "^0.1.3",
+    "web3": "^1.3.6"
+  },
+  "devDependencies": {
+    "parcel-bundler": "^1.6.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dev-launchers-sandbox/template__activity.git"
+  },
+  "keywords": []
+}
