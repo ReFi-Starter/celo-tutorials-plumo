@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import Chest from "/src/classes/Chest.js";
+import Chest from "../classes/Chest.js";
 
 (function() {
   window.Animal = Chest;

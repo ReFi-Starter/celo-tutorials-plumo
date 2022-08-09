@@ -1,7 +1,8 @@
 import DevLaunchers from "./classes/dev-launchers";
-
-// Load specific game stuff here that will be used in
-// this file, or in 'modify.mjs'
+import { PlumoVerifier } from 'plumo-verifier';
+import Web3 from 'web3';
+import { newKitFromWeb3 } from '@celo/contractkit';
+import { ADDRESS } from './constants'; 
 
 export function setupActivity(scene) {
   // Monitor this activity's success conditions
@@ -13,69 +14,51 @@ export function setupActivity(scene) {
     Math.floor(scene.game.config.height - 25),
     "Set the variable:\n'chestContents'"
   );
-  loadModifyCode(scene, () => {
-    if (scene.chestContents == "NOTHING") {
-      new DevLaunchers.Activities.Info.InstructionSequence(scene, [
-        new DevLaunchers.Activities.Info.Instruction(
-          scene,
-          "Put something in\nthe chest!",
-          2000
-        )
-      ]);
-    } else {
-      scene.activityText.setText("Click to open\nyour chest");
+
+  const logger = {
+    debug: (...args) => console.debug(...args),
+    info: (...args) => console.info(...args),
+    warn: (...args) => console.warn(...args),
+    error: (...args) => console.error(...args),
+  };
+
+  const web3 = new Web3("https://plumo-prover-rpc.kobi.one")
+  const kit = newKitFromWeb3(web3);
+
+  const plumo = new PlumoVerifier(logger, kit.web3.eth, Buffer);
+
+  scene.activityText.setText("Click to reveal\n your balance");
+
+  scene.chest.on("pointerdown", () => {
+    if (scene.balanceTitle || scene.balance) {
+      scene.balanceTitle.destroy()
+      scene.balance.destroy()
     }
 
-    scene.chest.on("pointerdown", () => {
+    let balance = 0;
+
+    scene.activityText.setText("Fetching your\n balance...");
+    plumo.fetchCeloBalanceVerified(ADDRESS).then(res => {
+      balance = Number(web3.utils.fromWei(res.toString())).toFixed(2)
+
       scene.activityText.setText("");
-      new DevLaunchers.Activities.Info.Text(
+      scene.balance = new DevLaunchers.Activities.Info.Text(
         scene,
         Math.floor(scene.game.config.width / 2),
         Math.floor(scene.game.config.height - 30),
-        "You received:\n" + scene.chestContents
+        `${balance} CELO`      
       );
       if (scene.chestContents != "NOTHING") {
-        new DevLaunchers.Activities.Info.Text(
+        scene.balanceTitle = new DevLaunchers.Activities.Info.Text(
           scene,
           Math.floor(scene.game.config.width / 2),
           Math.floor(scene.game.config.height / 6),
-          "CONGRATULATIONS!"
-        );
+          "Your balance is"
+        )
         new DevLaunchers.Activities.Success.Noise(scene);
       }
-    });
+    }).catch(err => {
+      console.log(err);
+    })
   });
-}
-
-var evalWithinContext = function(context, code) {
-  (function(code) {
-    try {
-      eval(code);
-    } catch (error) {
-      console.log(error)
-    }
-  }.apply(context, [code]));
-};
-
-
-function loadModifyCode(scene, callback) {
-  loadScriptWithinContext("../modify.mjs", scene, callback);
-}
-
-function loadScriptWithinContext(path, context, callback) {
-  /* eslint-disable */
-  fetch(path)
-    .then(function(response) {
-      return response.text();
-    })
-    .then(function(textString) {
-      let modifiedActivityCode = injectIntoModifiedActivityCode(textString);
-      evalWithinContext(context, modifiedActivityCode);
-      callback();
-    })
-  /* eslint-enable */
-}
-
-function injectIntoModifiedActivityCode(modifiedActivityCode) {
-  return modifiedActivityCode;
 }
