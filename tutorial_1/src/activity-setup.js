@@ -1,7 +1,5 @@
 import DevLaunchers from "./classes/dev-launchers";
-import { PlumoVerifier } from 'plumo-verifier';
-import Web3 from 'web3';
-import { newKitFromWeb3 } from '@celo/contractkit';
+import Plumo from './Plumo';
 import { ADDRESS } from './constants'; 
 
 export function setupActivity(scene) {
@@ -12,23 +10,11 @@ export function setupActivity(scene) {
     scene,
     Math.floor(scene.game.config.width / 2),
     Math.floor(scene.game.config.height - 25),
-    "Set the variable:\n'chestContents'"
+    "Click to reveal\n your balance"
   );
 
-  const logger = {
-    debug: (...args) => console.debug(...args),
-    info: (...args) => console.info(...args),
-    warn: (...args) => console.warn(...args),
-    error: (...args) => console.error(...args),
-  };
-
-  const web3 = new Web3("https://plumo-prover-rpc.kobi.one")
-  const kit = newKitFromWeb3(web3);
-
-  const plumo = new PlumoVerifier(logger, kit.web3.eth, Buffer);
-
-  scene.activityText.setText("Click to reveal\n your balance");
-
+  const plumo = new Plumo()
+  
   scene.chest.on("pointerdown", () => {
     if (scene.balanceTitle || scene.balance) {
       scene.balanceTitle.destroy()
@@ -38,7 +24,8 @@ export function setupActivity(scene) {
     let balance = 0;
 
     scene.activityText.setText("Fetching your\n balance...");
-    plumo.fetchCeloBalanceVerified(ADDRESS).then(res => {
+    plumo.fetchCeloBalance(ADDRESS).then(res => {
+      const web3 = plumo.getWeb3Client();
       balance = Number(web3.utils.fromWei(res.toString())).toFixed(2)
 
       scene.activityText.setText("");

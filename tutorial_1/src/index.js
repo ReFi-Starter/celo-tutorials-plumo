@@ -14,11 +14,7 @@ function setupActivity() {
   activity.setupActivity(game.scene.scenes[0]);
 }
 
-// When the game is ready, begin setting up the activity
 game.events.on("ready", function() {
-  /* Only fire scene update event once, so we know the scene is ready
-   * (couldn't attach to 'ready' or 'create' scene events for some reason,
-   * so used this hack */
   var playScene = game.scene.scenes[0];
   window.sceneUpdateEventListener = playScene.events.on(
     "create",
