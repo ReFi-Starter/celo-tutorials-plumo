@@ -4,8 +4,9 @@
   "description": "a plumo tutorial",
   "main": "src/index.js",
   "scripts": {
-    "build": "webpack --config webpack/prod.js ",
-    "start": "webpack-dev-server --config webpack/base.js --open"
+    "build": "npm run switchToLegacy && webpack --config webpack/prod.js ",
+    "start": "npm run switchToLegacy && webpack-dev-server --config webpack/base.js --open",
+    "switchToLegacy": "export NODE_OPTIONS=--openssl-legacy-provider"
   },
   "license": "MIT",
   "licenseUrl": "http://www.opensource.org/licenses/mit-license.php",
